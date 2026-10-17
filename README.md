@@ -23,8 +23,12 @@
 投影动力学（Projective Dynamics）由 Sofien Bouaziz 等人于 2014 年在 ACM SIGGRAPH 顶刊上提出（*Projective Dynamics: Fusing Constraint Projections for Fast Simulation*）。其核心思想是将非线性弹性力学势能极小化问题转化为**局部几何投影步（Local Step）**与**全局线性求解步（Global Step）**的交替优化。
 
 ### 1. 能量与优化目标形式
-对于由质点空间坐标 $\mathbf{q} \in \mathbb{R}^{3n}$ 组成的结构体系，平衡状态对应于总能量泛函的驻点：
-$$\min_{\mathbf{q}} \sum_{i} \frac{w_i}{2} \left\| \mathbf{S}_i \mathbf{q} - \mathbf{p}_i \right\|^2 - \mathbf{f}_{ext}^T \mathbf{q}$$
+对于由质点空间坐标 $\mathbf{q} \in \mathbb{R}^{3n}$ 组成的结构体系，平衡状态对应于总能量泛函的极小化：
+
+```math
+\min_{\mathbf{q}} \sum_{i} \frac{w_i}{2} \left\| \mathbf{S}_i \mathbf{q} - \mathbf{p}_i \right\|^2 - \mathbf{f}_{ext}^T \mathbf{q}
+```
+
 其中：
 - $w_i = \frac{E_i A_i}{L_{0,i}}$ 为空间杆件单元的刚度权重；
 - $\mathbf{S}_i \in \mathbb{R}^{3 \times 3n}$ 为选择构件两端节点相对坐标的差分矩阵；
@@ -33,27 +37,46 @@ $$\min_{\mathbf{q}} \sum_{i} \frac{w_i}{2} \left\| \mathbf{S}_i \mathbf{q} - \ma
 
 ### 2. 局部步 (Local Projection Step)
 固定当前节点坐标 $\mathbf{q}$，为每个单元独立求解距离当前几何变形最近的许可状态：
-$$\mathbf{p}_i = \text{proj}_{\mathcal{M}_i}(\mathbf{S}_i \mathbf{q}) = \text{proj}_{\mathcal{M}_i}(\mathbf{q}_{j} - \mathbf{q}_{k})$$
+
+```math
+\mathbf{p}_i = \text{proj}_{\mathcal{M}_i}(\mathbf{S}_i \mathbf{q}) = \text{proj}_{\mathcal{M}_i}(\mathbf{q}_{j} - \mathbf{q}_{k})
+```
 
 - **标准空间桁架单元 (Truss Element)**：
   许可状态为刚体旋转（长度保持原长 $L_0$）：
-  $$\mathbf{p}_i = L_0 \frac{\mathbf{q}_j - \mathbf{q}_k}{\|\mathbf{q}_j - \mathbf{q}_k\|}$$
+  
+  ```math
+  \mathbf{p}_i = L_0 \frac{\mathbf{q}_j - \mathbf{q}_k}{\|\mathbf{q}_j - \mathbf{q}_k\|}
+  ```
+
 - **单拉索单元 (Tension-only Cable)**：
   当受拉（$\|\mathbf{d}\| \ge L_0$）时，投影到原长球面；当受压松弛（$\|\mathbf{d}\| < L_0$）时，位于许可流形内部，$\mathbf{p}_i = \mathbf{d}$，不产生拉力反抗。
 - 局部步计算在各构件之间**完全解耦，具备天然的并行性**。
 
 ### 3. 全局步 (Global Solve Step)
 固定所有单元的投影向量 $\mathbf{p}_i$，优化目标函数对 $\mathbf{q}$ 求导可得线性方程组：
-$$\mathbf{K} \mathbf{q} = \mathbf{b}(\mathbf{p}) + \mathbf{f}_{ext}$$
+
+```math
+\mathbf{K} \mathbf{q} = \mathbf{b}(\mathbf{p}) + \mathbf{f}_{ext}
+```
+
 其中全局系统矩阵：
-$$\mathbf{K} = \sum_{i} w_i \mathbf{S}_i^T \mathbf{S}_i + \mathbf{K}_{support}$$
+
+```math
+\mathbf{K} = \sum_{i} w_i \mathbf{S}_i^T \mathbf{S}_i + \mathbf{K}_{support}
+```
+
 **关键优势**：
 矩阵 $\mathbf{K}$ 是**严格常数、对称正定（SPD）且与时间/迭代无关的加权图拉普拉斯矩阵**！
 在求解器初始化时，只需进行**一次且仅一次**稀疏 Cholesky 分解（`Eigen::SimplicialLDLT`）。在后续的迭代循环中，全局步只需进行毫秒级的前向与后向代入回代，无需重新组装刚度矩阵，更无需反复求逆。
 
 ### 4. 切比雪夫/动量外推加速 (Chebyshev / Momentum Acceleration)
 传统交替优化（如 Gauss-Seidel）在低频几何位移传播时收敛变慢。本项目引入多项式动量外推：
-$$\mathbf{y}^k = \mathbf{q}^k + \beta (\mathbf{q}^k - \mathbf{q}^{k-1})$$
+
+```math
+\mathbf{y}^k = \mathbf{q}^k + \beta (\mathbf{q}^k - \mathbf{q}^{k-1})
+```
+
 将低阶振荡阻尼化，加速宏观位移收敛达 **3~5 倍**，百余步即可达到机器级力学自平衡。
 
 ---
