@@ -43,11 +43,9 @@
 ```
 
 - **标准空间桁架单元 (Truss Element)**：
-  许可状态为刚体旋转（长度保持原长 $L_0$）：
-  
-  ```math
-  \mathbf{p}_i = L_0 \frac{\mathbf{q}_j - \mathbf{q}_k}{\|\mathbf{q}_j - \mathbf{q}_k\|}
-  ```
+  许可状态为刚体旋转（保持原长 $L_0$）：
+
+$$\mathbf{p}_i = L_0 \frac{\mathbf{q}_j - \mathbf{q}_k}{\|\mathbf{q}_j - \mathbf{q}_k\|}$$
 
 - **单拉索单元 (Tension-only Cable)**：
   当受拉（$\|\mathbf{d}\| \ge L_0$）时，投影到原长球面；当受压松弛（$\|\mathbf{d}\| < L_0$）时，位于许可流形内部，$\mathbf{p}_i = \mathbf{d}$，不产生拉力反抗。
