@@ -43,15 +43,20 @@
 ```
 
 - **标准空间桁架单元 (Truss Element)**：
-  许可状态为刚体旋转（保持原长 $L_0$）：
+  许可状态为保持原长 $L_0$ 的刚体旋转：
 
-$$\mathbf{p}_i = L_0 \frac{\mathbf{q}_j - \mathbf{q}_k}{\|\mathbf{q}_j - \mathbf{q}_k\|}$$
+```math
+\mathbf{p}_i = L_0 \frac{\mathbf{q}_j - \mathbf{q}_k}{\|\mathbf{q}_j - \mathbf{q}_k\|}
+```
 
 - **单拉索单元 (Tension-only Cable)**：
   仅承受拉力，受压时发生几何松弛：
-  - **受拉状态** ($ \|\mathbf{d}\| \ge L_0 $)：投影到原长球面，恢复拉力刚度；
-  - **松弛状态** ($ \|\mathbf{d}\| < L_0 $)：构件内部无应力，$\mathbf{p}_i = \mathbf{d}$，不产生抵抗力。
-- 局部步计算在各构件之间**完全解耦，具备天然的并行性**。
+
+```math
+\mathbf{p}_i = \begin{cases} L_0 \dfrac{\mathbf{d}}{\|\mathbf{d}\|}, & \|\mathbf{d}\| \ge L_0 \quad (\text{受拉状态}) \\[8pt] \mathbf{d}, & \|\mathbf{d}\| < L_0 \quad (\text{松弛状态}) \end{cases}
+```
+
+- **天然并行性**：局部步计算在各构件之间完全独立解耦，极易并行加速。
 
 ### 3. 全局步 (Global Solve Step)
 固定所有单元的投影向量 $\mathbf{p}_i$，优化目标函数对 $\mathbf{q}$ 求导可得线性方程组：
