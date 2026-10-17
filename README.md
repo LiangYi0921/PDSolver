@@ -43,7 +43,7 @@
 ```
 
 - **标准空间桁架单元 (Truss Element)**：
-  许可状态为保持原长 $L_0$ 的刚体旋转：
+  许可状态为保持原长 $L_0$ 的刚体旋转。当杆件发生轴向拉伸或压缩变形时，局部步将其刚体投影到原长流形球面：
 
 ```math
 \mathbf{p}_i = L_0 \frac{\mathbf{q}_j - \mathbf{q}_k}{\|\mathbf{q}_j - \mathbf{q}_k\|}
@@ -53,10 +53,13 @@
   仅承受拉力，受压时发生几何松弛：
 
 ```math
-\mathbf{p}_i = \begin{cases} L_0 \dfrac{\mathbf{d}}{\|\mathbf{d}\|}, & \|\mathbf{d}\| \ge L_0 \quad (\text{受拉状态}) \\[8pt] \mathbf{d}, & \|\mathbf{d}\| < L_0 \quad (\text{松弛状态}) \end{cases}
+\mathbf{p}_i = \begin{cases} L_0 \dfrac{\mathbf{d}}{\|\mathbf{d}\|}, & \|\mathbf{d}\| \ge L_0 \\[8pt] \mathbf{d}, & \|\mathbf{d}\| < L_0 \end{cases}
 ```
 
-- **天然并行性**：局部步计算在各构件之间完全独立解耦，极易并行加速。
+  - **受拉状态**：当索体伸长处于张紧状态时，投影到原长球面，在全局步中产生拉力弹性刚度；
+  - **松弛状态**：当索体缩短处于受压工况时，投影向量直接等于当前变形向量，构件内部弹性变形能为零，不产生任何抵抗力，从而自然模拟索结构的屈曲松弛非线性效应。
+
+- **天然并行性**：局部步计算在各构件之间完全独立解耦，极易进行多线程并行加速。
 
 ### 3. 全局步 (Global Solve Step)
 固定所有单元的投影向量 $\mathbf{p}_i$，优化目标函数对 $\mathbf{q}$ 求导可得线性方程组：
