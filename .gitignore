@@ -1,0 +1,14 @@
+# Visual Studio & Compiler temporaries
+*.obj
+*.pdb
+*.ilk
+*.idb
+*.ipch
+.vs/
+build/
+x64/
+Debug/
+Release/
+
+# Keep the compiled demo executable as requested
+!PDSolverDemo.exe
