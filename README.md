@@ -48,7 +48,9 @@
 $$\mathbf{p}_i = L_0 \frac{\mathbf{q}_j - \mathbf{q}_k}{\|\mathbf{q}_j - \mathbf{q}_k\|}$$
 
 - **单拉索单元 (Tension-only Cable)**：
-  当受拉（$\|\mathbf{d}\| \ge L_0$）时，投影到原长球面；当受压松弛（$\|\mathbf{d}\| < L_0$）时，位于许可流形内部，$\mathbf{p}_i = \mathbf{d}$，不产生拉力反抗。
+  仅承受拉力，受压时发生几何松弛：
+  - **受拉状态**（$\|\mathbf{d}\| \ge L_0$）：投影到原长球面，恢复拉力刚度；
+  - **松弛状态**（$\|\mathbf{d}\| < L_0$）：位于许可流形内部，$\mathbf{p}_i = \mathbf{d}$，不产生拉力反抗。
 - 局部步计算在各构件之间**完全解耦，具备天然的并行性**。
 
 ### 3. 全局步 (Global Solve Step)
